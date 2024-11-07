@@ -8,24 +8,21 @@ export class TasksService {
 
   constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
 
-  // Create a task
   async create(task: {
     title: string;
-    status: string; // "To Do", "In Progress", "Completed"
+    status: string; 
     dueDate: Date;
-    assignedTo: string; // UserId
-    project: string; // ProjectId
+    assignedTo: string; 
+    project: string; 
   }) {
     const createdTask = new this.taskModel(task);
     return await createdTask.save();
   }
 
-  // Get all tasks
   async findAll() {
     return this.taskModel.find().exec();
   }
 
-  // Get task by ID
   async findById(id: string) {
     return this.taskModel.findById(id).exec();
   }

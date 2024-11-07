@@ -23,11 +23,11 @@ import { AuthModule } from 'src/auth/auth.module';
         store: redisStore as any,
         host: 'localhost',
         port: 6379,
-        ttl: 60 * 60, // Cache expiration time in seconds
+        ttl: 60 * 60, 
       }),
     }),
   ],
   controllers: [AnalyticsController],
-  providers: [AnalyticsService, RolesGuard], // Ensure you have RolesGuard if needed
+  providers: [AnalyticsService, RolesGuard], 
 })
 export class AnalyticsModule {}

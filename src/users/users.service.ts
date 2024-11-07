@@ -18,7 +18,7 @@ export class UsersService {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();  // Use the appropriate query to find user by username
+    return this.userModel.findOne({ username }).exec();  
   }
   async findById(id: string) {
     return this.userModel.findById(id).exec();
