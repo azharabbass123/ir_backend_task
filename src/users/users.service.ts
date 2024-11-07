@@ -8,18 +8,18 @@ export class UsersService {
 
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  // Create a user
   async create(user: { username: string; password: string; role: string }) {
     const createdUser = new this.userModel(user);
     return await createdUser.save();
   }
 
-  // Get all users
   async findAll() {
     return this.userModel.find().exec();
   }
 
-  // Get user by ID
+  async findByUsername(username: string): Promise<User | null> {
+    return this.userModel.findOne({ username }).exec();  // Use the appropriate query to find user by username
+  }
   async findById(id: string) {
     return this.userModel.findById(id).exec();
   }
