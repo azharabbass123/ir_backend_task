@@ -16,7 +16,7 @@ export class AnalyticsController {
 
   @Get('user-performance-report')
   @Roles('Admin', 'Manager')
-  async getUserPerformanceReport(@Query('userId') userId: string) {
+  async getUserPerformanceReport(@Query('username') userId: string) {
     return this.analyticsService.getUserPerformanceReport(userId);
   }
 

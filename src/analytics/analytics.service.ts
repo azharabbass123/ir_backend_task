@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Model } from 'mongoose';
+import { Cache } from 'cache-manager';
 import { Task, TaskDocument } from '../tasks/tasks.schema';
 import { Project, ProjectDocument } from '../projects/projects.schema';
 import { User, UserDocument } from '../users/users.schema';
@@ -11,9 +13,17 @@ export class AnalyticsService {
     @InjectModel(Task.name) private taskModel: Model<TaskDocument>,
     @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async getTaskCompletionSummary(page: number = 1, limit: number = 10) {
+    const cacheKey = `taskCompletionSummary_${page}_${limit}`;
+    let cachedData = await this.cacheManager.get(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     const skip = (page - 1) * limit;
     const aggregation = [
       {
@@ -25,10 +35,28 @@ export class AnalyticsService {
       { $skip: skip },
       { $limit: limit },
     ];
-    return this.taskModel.aggregate(aggregation).exec();
+
+    const data = await this.taskModel.aggregate(aggregation).exec();
+    await this.cacheManager.set(cacheKey, data, 3600 ); 
+    return data;
   }
 
-  async getUserPerformanceReport(userId: string) {
+  async getUserPerformanceReport(username: string) {
+    const cacheKey = `userPerformanceReport_${username}`;
+    let cachedData = await this.cacheManager.get(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
+    const user = await this.userModel.findOne({ username }).exec();
+
+    if (!user) {
+      return "User not found";
+    }
+
+    const userId = user._id; 
+
     const aggregation = [
       { $match: { assignedTo: userId } },
       {
@@ -38,10 +66,23 @@ export class AnalyticsService {
         },
       },
     ];
-    return this.taskModel.aggregate(aggregation).exec();
+
+    const data = await this.taskModel.aggregate(aggregation).exec();
+
+    await this.cacheManager.set(cacheKey, data, 3600);  
+
+    return data;
   }
 
+
   async getOverdueTasksSummary(page: number = 1, limit: number = 10) {
+    const cacheKey = `overdueTasksSummary_${page}_${limit}`;
+    let cachedData = await this.cacheManager.get(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     const currentDate = new Date();
     const skip = (page - 1) * limit;
     const aggregation = [
@@ -55,10 +96,20 @@ export class AnalyticsService {
       { $skip: skip },
       { $limit: limit },
     ];
-    return this.taskModel.aggregate(aggregation).exec();
+
+    const data = await this.taskModel.aggregate(aggregation).exec();
+    await this.cacheManager.set(cacheKey, data, 3600) 
+    return data;
   }
 
   async getProjectTaskSummary(projectId: string) {
+    const cacheKey = `projectTaskSummary_${projectId}`;
+    let cachedData = await this.cacheManager.get(cacheKey);
+
+    if (cachedData) {
+      return cachedData;
+    }
+
     const aggregation = [
       { $match: { projectId } },
       {
@@ -89,6 +140,9 @@ export class AnalyticsService {
         },
       },
     ];
-    return this.taskModel.aggregate(aggregation).exec();
+
+    const data = await this.taskModel.aggregate(aggregation).exec();
+    await this.cacheManager.set(cacheKey, data, 3600 ); 
+    return data;
   }
 }

@@ -21,7 +21,8 @@ import { RedisModule } from './redis/redis.module';
     TasksModule, 
     ProjectsModule, 
     AnalyticsModule, 
-    AuthModule, RedisModule
+    AuthModule, 
+    RedisModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 import { AnalyticsService } from './analytics.service';
 import { AnalyticsController } from './analytics.controller';
 import { Task, TaskSchema } from '../tasks/tasks.schema';
@@ -16,8 +18,16 @@ import { AuthModule } from 'src/auth/auth.module';
       { name: User.name, schema: UserSchema },
     ]),
     AuthModule,
+    CacheModule.registerAsync({
+      useFactory: async () => ({
+        store: redisStore as any,
+        host: 'localhost',
+        port: 6379,
+        ttl: 60 * 60, // Cache expiration time in seconds
+      }),
+    }),
   ],
   controllers: [AnalyticsController],
-  providers: [AnalyticsService],
+  providers: [AnalyticsService, RolesGuard], // Ensure you have RolesGuard if needed
 })
 export class AnalyticsModule {}
