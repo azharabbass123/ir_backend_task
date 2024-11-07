@@ -8,24 +8,27 @@ export class ProjectsService {
 
   constructor(@InjectModel(Project.name) private projectModel: Model<ProjectDocument>) {}
 
-  // Create a project
   async create(project: {
     name: string;
     description: string;
-    owner: string; // UserId
-    members: string[]; // Array of UserIds
+    owner: string; 
+    members: string[]; 
   }) {
     const createdProject = new this.projectModel(project);
     return await createdProject.save();
   }
 
-  // Get all projects
+  
   async findAll() {
     return this.projectModel.find().exec();
   }
 
-  // Get project by ID
+  
   async findById(id: string) {
     return this.projectModel.findById(id).exec();
+  }
+
+  async update(id: string, updateData: any): Promise<Project> {
+    return await this.projectModel.findByIdAndUpdate(id, updateData, { new: true });
   }
 }

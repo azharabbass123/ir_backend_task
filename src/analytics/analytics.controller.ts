@@ -28,7 +28,7 @@ export class AnalyticsController {
 
   @Get('project-task-summary')
   @Roles('Admin', 'Manager')
-  async getProjectTaskSummary(@Query('projectId') projectId: string) {
+  async getProjectTaskSummary(@Query('projectName') projectId: string) {
     return this.analyticsService.getProjectTaskSummary(projectId);
   }
 }

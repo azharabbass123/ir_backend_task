@@ -102,47 +102,57 @@ export class AnalyticsService {
     return data;
   }
 
-  async getProjectTaskSummary(projectId: string) {
-    const cacheKey = `projectTaskSummary_${projectId}`;
+  async getProjectTaskSummary(projectName: string) {
+    const cacheKey = `projectTaskSummary_${projectName}`;
     let cachedData = await this.cacheManager.get(cacheKey);
 
     if (cachedData) {
-      return cachedData;
+        return cachedData;
     }
 
+    const project = await this.projectModel.findOne({ name: projectName }).exec();
+
+    if (!project) {
+        return "Project not found";
+    }
+
+    const projectId = project._id;
+
     const aggregation = [
-      { $match: { projectId } },
-      {
-        $group: {
-          _id: '$status',
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'assignedTo',
-          foreignField: '_id',
-          as: 'members',
-        },
-      },
-      {
-        $project: {
-          status: '$_id',
-          count: 1,
-          members: {
-            $map: {
-              input: '$members',
-              as: 'member',
-              in: { _id: '$$member._id', username: '$$member.username' },
+        { $match: { project: projectId } },
+        {
+            $group: {
+                _id: '$status',
+                count: { $sum: 1 },
             },
-          },
         },
-      },
+        {
+            $lookup: {
+                from: 'users',
+                localField: 'assignedTo',
+                foreignField: '_id',
+                as: 'members',
+            },
+        },
+        {
+            $project: {
+                status: '$_id',
+                count: 1,
+                members: {
+                    $map: {
+                        input: '$members',
+                        as: 'member',
+                        in: { _id: '$$member._id', username: '$$member.username' },
+                    },
+                },
+            },
+        },
     ];
 
     const data = await this.taskModel.aggregate(aggregation).exec();
-    await this.cacheManager.set(cacheKey, data, 3600 ); 
+
+    await this.cacheManager.set(cacheKey, data, 3600);
     return data;
-  }
+}
+
 }
