@@ -8,6 +8,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AuthModule } from './auth/auth.module';
+import { RedisModule } from './redis/redis.module';
 
 
 @Module({
@@ -20,7 +21,7 @@ import { AuthModule } from './auth/auth.module';
     TasksModule, 
     ProjectsModule, 
     AnalyticsModule, 
-    AuthModule
+    AuthModule, RedisModule
   ],
   controllers: [AppController],
   providers: [AppService],

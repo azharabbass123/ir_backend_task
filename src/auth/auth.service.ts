@@ -15,15 +15,15 @@ export class AuthService {
   async login(username: string, password: string): Promise<string> {
     const user = await this.userService.findByUsername(username);
     if (!user) {
-      throw new Error('Invalid credentials');
+      return "User not found";
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await (password == user.password);
     if (!isPasswordValid) {
-      throw new Error('Invalid credentials');
+      return "Invalid Creds";
     }
 
-    const payload: JwtPayload = { username: user.username, sub: user._id };
+    const payload: JwtPayload = { username: user.username, sub: user._id, role: user.role };
 
     return this.jwtService.sign(payload);
   }

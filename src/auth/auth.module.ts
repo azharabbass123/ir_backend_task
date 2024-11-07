@@ -12,14 +12,14 @@ import { ConfigModule } from '@nestjs/config';
     ConfigModule.forRoot({
       isGlobal: true
     }),
-    UsersModule,  // Import UserModule to get UserService for login
+    UsersModule,  
     JwtModule.register({
-      secret: process.env.SECRET_KEY,  // You should store this secret in an environment variable
-      signOptions: { expiresIn: '60m' },  // Token expiry time
+      secret: process.env.SECRET_KEY,  
+      signOptions: { expiresIn: '60m' }, 
     }),
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
-  exports: [AuthService],  // Export AuthService to use it in other modules
+  exports: [AuthService, JwtModule],  
 })
 export class AuthModule {}
